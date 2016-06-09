@@ -28,7 +28,7 @@ Game::Game(){
     moveUp = moveRight = moveDown = moveLeft = false;
 
     ///--- Set Finish tile ---///
-    if(!texture_finish_tile.loadFromFile("./textures/finish.png")){
+    if(!texture_finish_tile.loadFromFile("./finish.png")){
         cerr << "Could not load file." << endl;
     }
     finish_tile.setTexture(texture_finish_tile);
