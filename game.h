@@ -2,28 +2,35 @@
 #include <vector>
 
 #include "maze.h"
+//#include "entity.h"
 
 class Game{
-    private: //--- private variables
-        unsigned short int window_x;
-        unsigned short int window_y;
+    private: ///--- private variables
+        //Window
         sf::RenderWindow window;
 
+        //Player
         sf::CircleShape player;
-        bool moveUp, moveRight, moveDown, moveLeft;
+        sf::Vector2f startingPosition; //starting position
         float speed;
-        sf::Vector2f start;
 
+        //Walls & Obstacles
         std::vector<sf::RectangleShape> obstacleList;
+        std::vector<sf::FloatRect> obstacleGlobalBoundList;
 
+        //Finish tile
         sf::Texture texture_finish_tile;
         sf::Sprite finish_tile;
 
+        //Maze
         Maze gameArea;
 
-    private: //--- private methods
+        //Enemies
+        //std::vector<Entity> enemyList;
+
+    private: ///--- private methods
         void processEvents();
-        void processInputs(/*sf::Keyboard::Key, bool*/);
+        //void processInputs();
         void updateData();
         void render();
 

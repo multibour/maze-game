@@ -1,10 +1,5 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
-//#include <tuple>
-
-const int MAZE_SIZE = 9;
-const float length = 80.0;
-
 
 struct CustomTuple{
     int x;
@@ -25,7 +20,7 @@ struct singleCell{
 ///--- Maze Class ---///
 class Maze{
     private: ///private variables
-        singleCell maze[MAZE_SIZE][MAZE_SIZE];
+        singleCell** maze; //2D singleCell array
 
         CustomTuple current;
         CustomTuple temp;
@@ -34,10 +29,8 @@ class Maze{
         void reset();
 
         void randomUnvisitedCell();
-
         bool anyUnvisitedCells();
         bool chooseRandomUnvisitedNeighbor();
-
 
     public: ///public methods
         Maze();
@@ -45,6 +38,5 @@ class Maze{
 
         void create();
         void setWalls(std::vector<sf::RectangleShape>&);
-
 };
 

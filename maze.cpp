@@ -3,25 +3,28 @@
 #include <stack>
 #include <iostream>
 
+#include "constants.h"
 #include "maze.h"
 
-using namespace std;
+//using namespace std;
 
 Maze::Maze(){
-    current.x = 0;
-    current.y = 0;
-    maze[0][0].visited = true;
-    //reset();
+    maze = new singleCell* [MAZE_SIZE_Y];
+    for(int i = 0; i < MAZE_SIZE_Y; i++)
+        maze[i] = new singleCell [MAZE_SIZE_X];
 }
 
 Maze::~Maze(){
+    for(int i = 0; i < MAZE_SIZE_Y; i++)
+        delete [] maze[i];
+    delete [] maze;
 }
 
 ///--- Private Methods ---///
 
 void Maze::reset(){
-    for(int i = 0; i < MAZE_SIZE; i++){
-        for(int j = 0; j < MAZE_SIZE; j++){
+    for(int i = 0; i < MAZE_SIZE_Y; i++){//y
+        for(int j = 0; j < MAZE_SIZE_X; j++){//x
             maze[i][j].up = true;
             maze[i][j].right = true;
             maze[i][j].down = true;
@@ -37,16 +40,15 @@ void Maze::reset(){
 
 void Maze::randomUnvisitedCell(){
     do{
-        current.x = rand() % MAZE_SIZE;
-        current.y = rand() % MAZE_SIZE;
+        current.x = rand() % MAZE_SIZE_X;
+        current.y = rand() % MAZE_SIZE_Y;
     }while(maze[current.y][current.x].visited);
     maze[current.y][current.x].visited = true;
 }
 
-
 bool Maze::anyUnvisitedCells(){
-    for(int i = 0; i < MAZE_SIZE; i++){
-        for(int j = 0; j < MAZE_SIZE; j++){
+    for(int i = 0; i < MAZE_SIZE_Y; i++){//y
+        for(int j = 0; j < MAZE_SIZE_X; j++){//x
             if(!(maze[i][j].visited))
                 return true;
         }
@@ -71,19 +73,21 @@ bool Maze::chooseRandomUnvisitedNeighbor(){//
         if(!maze[y][x-1].visited)
             left = true;
     }
-    if(y != MAZE_SIZE-1){ //look down
+    if(y != MAZE_SIZE_Y-1){ //look down
         if(!maze[y+1][x].visited)
             down = true;
     }
-    if(x != MAZE_SIZE-1){ //look right
+    if(x != MAZE_SIZE_X-1){ //look right
         if(!maze[y][x+1].visited)
             right = true;
     }
 
-    if(!(up || left || down || right)) //if all are visited
+    //if all cells are visited
+    if(!(up || left || down || right))
         return false;
 
-    int index = rand() % 4; //0,1,2,3
+    //if there is at least one unvisited cell
+    int index = rand() % 4; //0, 1, 2 or 3
     while(true){
         if(index == 0 && up){
             temp.y = y-1;
@@ -129,12 +133,12 @@ void Maze::create(){//
     std::stack<CustomTuple> cellStack;
 
     while(anyUnvisitedCells()){
-        if(chooseRandomUnvisitedNeighbor()){
+        if(chooseRandomUnvisitedNeighbor()){//if there is an unvisited neighbor
             cellStack.push(current);//push to stack
             current = temp;
             maze[current.y][current.x].visited = true;
         }
-        else if(!cellStack.empty()){//stack is not empty
+        else if(!cellStack.empty()){//else if stack is not empty
             current = cellStack.top();
             cellStack.pop();//pop from stack
         }
@@ -151,37 +155,41 @@ void Maze::setWalls(std::vector<sf::RectangleShape>& walls){
     walls.clear();
 
     ///-- Set Info of vertical and horizontal Walls --///
-    sf::RectangleShape verticalWall(sf::Vector2f(2.0, length));
-    verticalWall.setOrigin(1.0, length/2);
+    sf::RectangleShape verticalWall(sf::Vector2f(2.0, CELL_LENGTH));
+    verticalWall.setOrigin(1.0, CELL_LENGTH/2);
     verticalWall.setFillColor(sf::Color::Green);
 
-    sf::RectangleShape horizontalWall(sf::Vector2f(length, 2.0));
-    horizontalWall.setOrigin(length/2, 1.0);
+    sf::RectangleShape horizontalWall(sf::Vector2f(CELL_LENGTH, 2.0));
+    horizontalWall.setOrigin(CELL_LENGTH/2, 1.0);
     horizontalWall.setFillColor(sf::Color::Green);
 
     ///-- Set necessary walls and push them to vector --///
-    for(int iii = 0; iii < MAZE_SIZE; iii++){
-        for(int jjj = 0; jjj < MAZE_SIZE; jjj++){
-            if(iii == MAZE_SIZE-1)
-                ;//rightmost cells' right walls will not be placed.
-            else if(maze[jjj][iii].right){
-                verticalWall.setPosition((iii+1) * length , jjj*length + length/2);
-                walls.push_back(verticalWall);
+    for(int iii = 0; iii < MAZE_SIZE_X; iii++){ //x
+        for(int jjj = 0; jjj < MAZE_SIZE_Y; jjj++){ //y
+
+            if(iii != MAZE_SIZE_X - 1){ //rightmost cells' right walls will not be placed.
+                if(maze[jjj][iii].right){
+                    verticalWall.setPosition((iii + 1) * CELL_LENGTH,
+                                             jjj*CELL_LENGTH + CELL_LENGTH / 2);
+                    walls.push_back(verticalWall);
+                }
             }
 
-            if(jjj == MAZE_SIZE-1)
-                ;//bottom cells' lower walls will not be placed.
-            else if(maze[jjj][iii].down){
-                horizontalWall.setPosition(iii*length + length/2, (jjj+1) * length);
-                walls.push_back(horizontalWall);
+            if(jjj != MAZE_SIZE_Y - 1){ //bottom cells' lower walls will not be placed.
+                if(maze[jjj][iii].down){
+                    horizontalWall.setPosition(iii * CELL_LENGTH + CELL_LENGTH / 2,
+                                               (jjj + 1) * CELL_LENGTH);
+                    walls.push_back(horizontalWall);
+                }
             }
-        }//for loop
-    }//for loop
+
+        } //end of for loop
+    } //end of for loop
 
     ///-- Set the walls around the Map --///
-    verticalWall.setSize(sf::Vector2f(2.0, length * MAZE_SIZE));
+    verticalWall.setSize(sf::Vector2f(2.0, CELL_LENGTH * MAZE_SIZE_Y));
     verticalWall.setOrigin(1.0, 0.0);
-    horizontalWall.setSize(sf::Vector2f(length * MAZE_SIZE, 2.0));
+    horizontalWall.setSize(sf::Vector2f(CELL_LENGTH * MAZE_SIZE_X, 2.0));
     horizontalWall.setOrigin(0.0, 1.0);
 
     verticalWall.setPosition(0.0, 0.0);
@@ -189,16 +197,9 @@ void Maze::setWalls(std::vector<sf::RectangleShape>& walls){
     walls.push_back(verticalWall);
     walls.push_back(horizontalWall);
 
-    verticalWall.setPosition(MAZE_SIZE * length, 0.0);
-    horizontalWall.setPosition(0.0, MAZE_SIZE * length);
+    verticalWall.setPosition(MAZE_SIZE_X * CELL_LENGTH, 0.0);
+    horizontalWall.setPosition(0.0, MAZE_SIZE_Y * CELL_LENGTH);
     walls.push_back(verticalWall);
     walls.push_back(horizontalWall);
 }
-
-
-
-
-
-
-
 
