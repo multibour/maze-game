@@ -22,7 +22,7 @@ Game::Game(){
     speed = PLAYER_SPEED;
 
     ///--- Set Finish tile ---///
-    if(!texture_finish_tile.loadFromFile("./textures/finish.png")){
+    if(!texture_finish_tile.loadFromFile("./finish.png")){
         std::cerr << "Could not load file." << std::endl;
         _exit(EXIT_FAILURE);
     }
