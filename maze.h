@@ -36,6 +36,8 @@ class Maze{
         Maze();
         ~Maze();
 
+        const singleCell* operator[](unsigned int);
+
         void create();
         void setWalls(std::vector<sf::RectangleShape>&);
 };

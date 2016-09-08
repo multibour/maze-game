@@ -1,18 +1,32 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+enum MovementMode{STILL = 0, CUSTOM, UPDOWN, LEFTRIGHT, SMART, STALKER};
+//Smart: entity walks around the maze randomly
+//Stalker: entity tries to get to the player with a path finding algorithm
+//These 2 modes shall be implemented in the future
+
+
 class Entity{
     private:
         sf::Sprite entity;
 
         sf::Vector2f velocity;
-        sf::Vector2f acceleration;
+
+        MovementMode mode;
 
     public:
-        Entity(const sf::Texture&, sf::Vector2f, sf::Vector2f, sf::Vector2f)
+        Entity(sf::Texture&);
+        Entity(sf::Texture&, sf::Vector2f, sf::Vector2f);
         ~Entity();
 
-        void update(std::vector<sf::RectangleShape>);
-        void update(std::vector<sf::FloatRect>);
+        void setMode(MovementMode);
+        void resetTexture(sf::Texture&);
+        sf::Sprite& getEntity();
+
+        void randomizePosition();
+
+        void update(std::vector<sf::RectangleShape>&);
+        void update(float, std::vector<sf::RectangleShape>&);
 };
 

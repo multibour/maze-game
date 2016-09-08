@@ -2,21 +2,26 @@
 #include <vector>
 
 #include "maze.h"
-//#include "entity.h"
+#include "entity.h"
 
 class Game{
     private: ///--- private variables
         //Window
         sf::RenderWindow window;
+        sf::View view;
 
         //Player
         sf::CircleShape player;
-        sf::Vector2f startingPosition; //starting position
+        sf::Vector2f startingPosition;
         float speed;
+
+        //Key
+        sf::Texture texture_key;
+        sf::Sprite key;
+        bool keyIsTaken;
 
         //Walls & Obstacles
         std::vector<sf::RectangleShape> obstacleList;
-        std::vector<sf::FloatRect> obstacleGlobalBoundList;
 
         //Finish tile
         sf::Texture texture_finish_tile;
@@ -26,11 +31,14 @@ class Game{
         Maze gameArea;
 
         //Enemies
-        //std::vector<Entity> enemyList;
+        sf::Texture texture_enemy;
+        std::vector<Entity> enemyList;
+        unsigned int enemyCount;
+
+        //Time handling
+        sf::Clock game_tick;
 
     private: ///--- private methods
-        void processEvents();
-        //void processInputs();
         void updateData();
         void render();
 
@@ -40,5 +48,4 @@ class Game{
 
         void run();
 };
-
 

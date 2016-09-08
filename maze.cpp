@@ -2,20 +2,20 @@
 #include <ctime>
 #include <stack>
 #include <iostream>
+#include <string>
 
 #include "constants.h"
 #include "maze.h"
 
-//using namespace std;
 
 Maze::Maze(){
     maze = new singleCell* [MAZE_SIZE_Y];
-    for(int i = 0; i < MAZE_SIZE_Y; i++)
+    for(unsigned int i = 0; i < MAZE_SIZE_Y; i++)
         maze[i] = new singleCell [MAZE_SIZE_X];
 }
 
 Maze::~Maze(){
-    for(int i = 0; i < MAZE_SIZE_Y; i++)
+    for(unsigned int i = 0; i < MAZE_SIZE_Y; i++)
         delete [] maze[i];
     delete [] maze;
 }
@@ -23,8 +23,8 @@ Maze::~Maze(){
 ///--- Private Methods ---///
 
 void Maze::reset(){
-    for(int i = 0; i < MAZE_SIZE_Y; i++){//y
-        for(int j = 0; j < MAZE_SIZE_X; j++){//x
+    for(unsigned int i = 0; i < MAZE_SIZE_Y; i++){//y
+        for(unsigned int j = 0; j < MAZE_SIZE_X; j++){//x
             maze[i][j].up = true;
             maze[i][j].right = true;
             maze[i][j].down = true;
@@ -37,7 +37,6 @@ void Maze::reset(){
     maze[0][0].visited = true;
 }
 
-
 void Maze::randomUnvisitedCell(){
     do{
         current.x = rand() % MAZE_SIZE_X;
@@ -47,8 +46,8 @@ void Maze::randomUnvisitedCell(){
 }
 
 bool Maze::anyUnvisitedCells(){
-    for(int i = 0; i < MAZE_SIZE_Y; i++){//y
-        for(int j = 0; j < MAZE_SIZE_X; j++){//x
+    for(unsigned int i = 0; i < MAZE_SIZE_Y; i++){//y
+        for(unsigned int j = 0; j < MAZE_SIZE_X; j++){//x
             if(!(maze[i][j].visited))
                 return true;
         }
@@ -87,8 +86,9 @@ bool Maze::chooseRandomUnvisitedNeighbor(){//
         return false;
 
     //if there is at least one unvisited cell
-    int index = rand() % 4; //0, 1, 2 or 3
-    while(true){
+    do{
+        int index = rand() % 4; //0, 1, 2 or 3
+
         if(index == 0 && up){
             temp.y = y-1;
             temp.x = x;
@@ -117,24 +117,19 @@ bool Maze::chooseRandomUnvisitedNeighbor(){//
             maze[y][x+1].left = false;
             return true;
         }
-
-        if(index == 3)
-            index = 0;
-        else
-            index++;
-    }
+    }while(true);
 }
 
 ///--- Public Methods ---///
 
-void Maze::create(){//
+void Maze::create(){
     reset();
     srand(time(NULL));
     std::stack<CustomTuple> cellStack;
 
     while(anyUnvisitedCells()){
         if(chooseRandomUnvisitedNeighbor()){//if there is an unvisited neighbor
-            cellStack.push(current);//push to stack
+            cellStack.push(current);//push current to stack
             current = temp;
             maze[current.y][current.x].visited = true;
         }
@@ -153,19 +148,20 @@ void Maze::create(){//
 
 void Maze::setWalls(std::vector<sf::RectangleShape>& walls){
     walls.clear();
+    const float THICKNESS = 4.0; //SHOULD BE AN EVEN NUMBER
 
-    ///-- Set Info of vertical and horizontal Walls --///
-    sf::RectangleShape verticalWall(sf::Vector2f(2.0, CELL_LENGTH));
-    verticalWall.setOrigin(1.0, CELL_LENGTH/2);
+    ///-- Set Properties of vertical and horizontal Walls --///
+    sf::RectangleShape verticalWall(sf::Vector2f(THICKNESS, CELL_LENGTH));
+    verticalWall.setOrigin(THICKNESS / 2, CELL_LENGTH / 2.0);
     verticalWall.setFillColor(sf::Color::Green);
 
-    sf::RectangleShape horizontalWall(sf::Vector2f(CELL_LENGTH, 2.0));
-    horizontalWall.setOrigin(CELL_LENGTH/2, 1.0);
+    sf::RectangleShape horizontalWall(sf::Vector2f(CELL_LENGTH, THICKNESS));
+    horizontalWall.setOrigin(CELL_LENGTH / 2, THICKNESS / 2);
     horizontalWall.setFillColor(sf::Color::Green);
 
-    ///-- Set necessary walls and push them to vector --///
-    for(int iii = 0; iii < MAZE_SIZE_X; iii++){ //x
-        for(int jjj = 0; jjj < MAZE_SIZE_Y; jjj++){ //y
+    ///-- Set necessary Walls and push them to Vector --///
+    for(unsigned int iii = 0; iii < MAZE_SIZE_X; iii++){ //x
+        for(unsigned int jjj = 0; jjj < MAZE_SIZE_Y; jjj++){ //y
 
             if(iii != MAZE_SIZE_X - 1){ //rightmost cells' right walls will not be placed.
                 if(maze[jjj][iii].right){
@@ -187,10 +183,10 @@ void Maze::setWalls(std::vector<sf::RectangleShape>& walls){
     } //end of for loop
 
     ///-- Set the walls around the Map --///
-    verticalWall.setSize(sf::Vector2f(2.0, CELL_LENGTH * MAZE_SIZE_Y));
-    verticalWall.setOrigin(1.0, 0.0);
-    horizontalWall.setSize(sf::Vector2f(CELL_LENGTH * MAZE_SIZE_X, 2.0));
-    horizontalWall.setOrigin(0.0, 1.0);
+    verticalWall.setSize(sf::Vector2f(THICKNESS, CELL_LENGTH * MAZE_SIZE_Y));
+    verticalWall.setOrigin(THICKNESS / 2, 0.0);
+    horizontalWall.setSize(sf::Vector2f(CELL_LENGTH * MAZE_SIZE_X, THICKNESS));
+    horizontalWall.setOrigin(0.0, THICKNESS / 2);
 
     verticalWall.setPosition(0.0, 0.0);
     horizontalWall.setPosition(0.0, 0.0);
@@ -201,5 +197,9 @@ void Maze::setWalls(std::vector<sf::RectangleShape>& walls){
     horizontalWall.setPosition(0.0, MAZE_SIZE_Y * CELL_LENGTH);
     walls.push_back(verticalWall);
     walls.push_back(horizontalWall);
+}
+
+const singleCell* Maze::operator[](unsigned int y_index){
+    return maze[y_index];
 }
 
