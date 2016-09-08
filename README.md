@@ -9,8 +9,13 @@ The aim of this game is to discover and test the features of SFML.
 An executable is available.
 It runs with the "textures" folder in the same folder.
 
+
 Possible modifications in the future:
+
 -Add sound
+
 -Make other enemies move
+
 -Add a different type of entity
+
 -Visual improvements
